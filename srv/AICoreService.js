@@ -20,6 +20,13 @@ import { createConfiguration, readConfigurations } from './ai-core/configuration
 
 const LOG = cds.log('@cap-js/ai');
 
+// RPT-1 inference only accepts dtype values 'string', 'numeric' or 'date'.
+// - Booleans round-trip as 'true' / 'false' strings.
+// - cds.Date maps to 'date' (calendar date, no time portion).
+// - cds.DateTime / cds.Timestamp keep their time portion: declared as
+//   'string' so RPT-1 treats the ISO value as an opaque categorical token
+//   instead of date-parsing it (which would drop the time and may reject
+//   ISO timestamps that aren't pure YYYY-MM-DD).
 const CDS_TO_PYTHON_DTYPE = {
   'cds.String': 'string',
   'cds.LargeString': 'string',
@@ -32,11 +39,11 @@ const CDS_TO_PYTHON_DTYPE = {
   'cds.UInt8': 'numeric',
   'cds.Decimal': 'numeric',
   'cds.Double': 'numeric',
-  'cds.Boolean': 'bool',
+  'cds.Boolean': 'string',
   'cds.Date': 'date',
   'cds.Time': 'string',
-  'cds.DateTime': 'datetime',
-  'cds.Timestamp': 'datetime'
+  'cds.DateTime': 'string',
+  'cds.Timestamp': 'string'
 };
 
 function cdsToPythonDtype(cdsType) {
