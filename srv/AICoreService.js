@@ -61,16 +61,19 @@ const NUMERIC_CDS_TYPES = new Set([
   'cds.Double'
 ]);
 
-// Pick the RPT-1 task type per target column. Numeric scalars opted in via
-// `@AI.Recommend` get `regression` so the model can interpolate continuous
-// values; everything else (categorical, value-help-backed FKs, strings) gets
-// `classification`. The opt-in check protects against treating a value-list
-// FK column — auto-generated and inheriting the FK's numeric type — as
-// regression: those carry no `@AI.Recommend`, so they remain categorical.
+// Pick the RPT-1 task type per target column. Fields with a ValueList always
+// get `classification` — they represent categorical choices. Numeric scalars
+// opted in via `@UI.RecommendationState` (without a ValueList) get `regression`
+// so the model can interpolate continuous values; everything else gets
+// `classification`.
 function pickTaskType(entity, columnName) {
   const ele = entity?.elements?.[columnName];
   if (!ele) return 'classification';
-  if (ele['@AI.Recommend'] && NUMERIC_CDS_TYPES.has(ele.type)) return 'regression';
+  const hasValueList =
+    ele['@Common.ValueList.CollectionPath'] ||
+    cds.model.definitions[ele.target]?.['@cds.odata.valuelist'];
+  if (hasValueList) return 'classification';
+  if (ele['@UI.RecommendationState'] && NUMERIC_CDS_TYPES.has(ele.type)) return 'regression';
   return 'classification';
 }
 
