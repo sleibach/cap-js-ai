@@ -4,6 +4,7 @@
 - The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - This project adheres to [Semantic Versioning](https://semver.org/).
 
+
 ## Version 1.1.0 - Upcoming
 
 ### Added
@@ -16,7 +17,12 @@
 - Empty-rows crash in `_fetchPrediction`. Reading a draft entity whose composition was empty fed `rows: []` to the prediction API, and the schema-derivation reduce dereferenced `rows[0][ele]` on `undefined`, taking the whole server down on a TypeError. `_fetchPrediction` now returns an empty result for empty input. The READ handler also short-circuits when the response set is empty, avoiding a needless AI Core round-trip.
 - RPT-1 inference limits now honoured. When `target_columns.length > 10` or when a row carries more than 100 columns, `_fetchPrediction` logs a warning and returns an empty result instead of letting the API reject the request with a noisy 422. The warning includes a hint to use `@UI.RecommendationState : 0` to opt fields out and bring the count down.
 
-## Version 1.0.0 - 28.04.2026
+## Version 1.0.1 - 2026-05-08
+
+### Fixed
+- Empty recommendations on read on active entities are returned empty to avoid UI errors
+
+## Version 1.0.0 - 2026-04-28
 
 ### Added
 - Out of box support for recommended values in field helps in Fiori UIs by providing an `SAP_Recommendations` navigation property in OData services which contains the recommendations.
